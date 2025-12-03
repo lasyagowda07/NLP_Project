@@ -4,3 +4,5 @@ matplotlib
 seaborn
 matplotlib
 scikit-learn
+requests
+beautifulsoup4
