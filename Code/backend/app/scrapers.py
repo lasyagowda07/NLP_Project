@@ -13,6 +13,12 @@ DEFAULT_DEST_DIR = Path("data/input")
 def download_complaints_zip(dest_dir: Path = DEFAULT_DEST_DIR) -> Path:
     dest_dir.mkdir(parents=True, exist_ok=True)
 
+    # If file already exists → return immediately
+    existing_csv = list(dest_dir.glob("*.csv"))
+    if existing_csv:
+        print("⚠️ CSV already exists. Skipping download.")
+        return "data/input/"
+
     print("[1/4] Fetching page…")
     headers = {"User-Agent": "cfpb-complaints-downloader/1.0"}
     resp = requests.get(BASE_URL, headers=headers, timeout=30)
@@ -46,4 +52,4 @@ def download_complaints_zip(dest_dir: Path = DEFAULT_DEST_DIR) -> Path:
 
     # return the CSV path if present
     csv_candidates = list(dest_dir.glob("*.csv"))
-    return csv_candidates[0] if csv_candidates else dest_dir
+    return "data/input/"

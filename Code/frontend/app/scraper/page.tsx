@@ -10,27 +10,10 @@ export default function ScraperPage() {
   const [isRunning, setIsRunning] = useState(false);
 
   async function callScraper() {
-    if (isRunning) return; // avoid double-click spam
-
+    if (isRunning) return;
     setIsRunning(true);
+
     setStatusLines(["Calling backend /scrape …"]);
-
-    // Steps 1–3 are “simulated” UI progress
-    const steps = [
-      "[1/4] Fetching page…",
-      "[2/4] Parsing HTML and locating CSV download link…",
-      "[3/4] Downloading zip from CFPB…",
-    ];
-
-    let stepIndex = 0;
-    const intervalId = setInterval(() => {
-      if (stepIndex < steps.length) {
-        setStatusLines((prev) => [...prev, steps[stepIndex]]);
-        stepIndex += 1;
-      } else {
-        clearInterval(intervalId);
-      }
-    }, 1000);
 
     try {
       const res = await fetch(`${BACKEND_URL}/scrape`, {
@@ -39,16 +22,16 @@ export default function ScraperPage() {
 
       const data = await res.json().catch(() => ({}));
 
-      // Ensure we stop the interval
-      clearInterval(intervalId);
-
       if (res.ok) {
-        // Final step should be shown when API response is 200
-        setStatusLines((prev) => [
-          ...prev,
+        const steps = [
+          "[1/4] Fetching page…",
+          "[2/4] Parsing HTML and locating CSV download link…",
+          "[3/4] Downloading zip from CFPB…",
           "[4/4] Extracting zip into data/input…",
-          `✅ ${data.message || "Download finished successfully."}`,
-        ]);
+          `✅ ${data.message || "Completed successfully."}`,
+        ];
+
+        setStatusLines(steps);
       } else {
         setStatusLines((prev) => [
           ...prev,
@@ -56,7 +39,6 @@ export default function ScraperPage() {
         ]);
       }
     } catch (err: any) {
-      clearInterval(intervalId);
       setStatusLines((prev) => [
         ...prev,
         `❌ Network error: ${err?.message ?? "Unknown error"}`,
@@ -70,12 +52,8 @@ export default function ScraperPage() {
     <div className="space-y-4">
       <h1 className="text-2xl font-semibold">1. Scraper</h1>
       <p className="max-w-xl text-sm text-slate-300">
-        This step downloads the latest CFPB complaint data from the official
-        website, extracts the CSV, and stores it under{" "}
-        <code className="rounded bg-slate-900 px-1 py-0.5">
-          data/input/
-        </code>{" "}
-        in the backend project.
+        This step downloads the latest CFPB complaint data and extracts it into{" "}
+        <code className="rounded bg-slate-900 px-1 py-0.5">data/input/</code>.
       </p>
 
       <Button
